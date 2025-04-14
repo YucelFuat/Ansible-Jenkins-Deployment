@@ -1,0 +1,17 @@
+---
+- name: Ensure kubectl is installed
+  package:
+    name: kubectl
+    state: present
+
+- name: Create Kubernetes namespace
+  command: kubectl create namespace {{ jenkins_k8s_namespace }}
+  ignore_errors: yes
+
+- name: Apply Kubernetes manifests
+  command: kubectl apply -f {{ item }}
+  args:
+    chdir: "{{ role_path }}/deployment_methods/kubernetes"
+  loop:
+    - deployment.yml
+    - service.yml 

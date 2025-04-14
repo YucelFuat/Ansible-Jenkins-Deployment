@@ -1,0 +1,25 @@
+---
+- name: Ensure Docker and Docker Compose are installed
+  package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - docker.io
+    - docker-compose
+
+- name: Ensure Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Copy docker-compose.yml
+  copy:
+    src: "{{ role_path }}/deployment_methods/docker/docker-compose.yml"
+    dest: /opt/jenkins/docker-compose.yml
+    mode: '0644'
+
+- name: Start Jenkins with Docker Compose
+  command: docker-compose up -d
+  args:
+    chdir: /opt/jenkins 

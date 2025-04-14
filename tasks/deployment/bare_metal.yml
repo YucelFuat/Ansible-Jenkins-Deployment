@@ -1,5 +1,4 @@
 ---
-# Variable setup.
 - name: Include OS-Specific variables
   include_vars: "{{ ansible_os_family }}.yml"
 
@@ -18,22 +17,16 @@
     jenkins_pkg_url: "{{ __jenkins_pkg_url }}"
   when: jenkins_pkg_url is not defined
 
-# Setup/install tasks.
-- include_tasks: setup-RedHat.yml
-  when: ansible_os_family == 'RedHat'
+- name: Include OS-specific setup tasks
+  include_tasks: "setup-{{ ansible_os_family }}.yml"
 
-- include_tasks: setup-Debian.yml
-  when: ansible_os_family == 'Debian'
+- name: Include Jenkins settings tasks
+  include_tasks: settings.yml
 
-# Configure Jenkins init settings.
-- include_tasks: settings.yml
-
-# Make sure Jenkins starts, then configure Jenkins.
-- name: Ensure Jenkins is started and runs on startup.
+- name: Ensure Jenkins is started and runs on startup
   service: name=jenkins state=started enabled=yes
-  when: jenkins_deployment_method != "docker" and jenkins_deployment_method != "docker_compose"
 
-- name: Wait for Jenkins to start up before proceeding.
+- name: Wait for Jenkins to start up before proceeding
   uri:
     url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/cli/"
     method: GET
@@ -48,9 +41,8 @@
   delay: "{{ jenkins_connection_delay }}"
   changed_when: false
   check_mode: false
-  when: jenkins_deployment_method != "docker" and jenkins_deployment_method != "docker_compose"
 
-- name: Get the jenkins-cli jarfile from the Jenkins server.
+- name: Get the jenkins-cli jarfile from the Jenkins server
   get_url:
     url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}/jnlpJars/jenkins-cli.jar"
     dest: "{{ jenkins_jar_location }}"
@@ -59,18 +51,11 @@
   retries: 5
   delay: 10
   check_mode: false
-  when: jenkins_deployment_method != "docker" and jenkins_deployment_method != "docker_compose"
 
-- name: Remove Jenkins security init scripts after first startup.
+- name: Remove Jenkins security init scripts after first startup
   file:
     path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
     state: absent
-  when: jenkins_deployment_method != "docker" and jenkins_deployment_method != "docker_compose"
 
-# Update Jenkins and install configured plugins.
-- include_tasks: plugins.yml
-  when: jenkins_deployment_method != "docker" and jenkins_deployment_method != "docker_compose"
-
-# Include deployment-specific tasks based on the chosen method
-- name: Include deployment tasks
-  include_tasks: deployment.yml
+- name: Include plugins tasks
+  include_tasks: plugins.yml 

@@ -13,7 +13,7 @@ jenkins_connection_delay: 5
 jenkins_connection_retries: 60
 jenkins_home: /var/lib/jenkins
 jenkins_hostname: localhost
-jenkins_http_port: 8080
+jenkins_http_port: 8085
 jenkins_jar_location: /opt/jenkins-cli.jar
 jenkins_url_prefix: ""
 jenkins_options: ""
@@ -62,3 +62,25 @@ jenkins_init_folder: "/etc/systemd/system/jenkins.service.d"
 jenkins_init_file: "{{ jenkins_init_folder }}/override.conf"
 
 jenkins_restart_behavior: "service"
+
+# Cloud4Next Jenkins Configuration
+# Deployment Method Configuration
+jenkins_deployment_method: "bare_metal"  # Options: bare_metal, docker, docker_compose, kubernetes
+
+# Company-specific settings
+company_name: "Cloud4Next"
+environment: "production"  # Options: production, staging, development
+
+# Docker-specific settings
+jenkins_docker_image: "jenkins/jenkins"
+jenkins_docker_tag: "lts"
+jenkins_docker_network: "jenkins_network"
+jenkins_docker_container_name: "cloud4next_jenkins"
+jenkins_docker_volumes:
+  - "jenkins_home:/var/jenkins_home"
+  - "/var/run/docker.sock:/var/run/docker.sock"
+
+# Kubernetes-specific settings
+jenkins_k8s_namespace: "jenkins"
+jenkins_k8s_storage_class: "standard"
+jenkins_k8s_pvc_size: "10Gi"

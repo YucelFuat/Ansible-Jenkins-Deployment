@@ -1,0 +1,5 @@
+git:5.7.0
+workflow-aggregator:2.6
+pipeline-model-definition:2.2218.v56d0cda_37c72
+credentials:1408.va_622a_b_f5b_1b_1
+matrix-auth:3.1.6 

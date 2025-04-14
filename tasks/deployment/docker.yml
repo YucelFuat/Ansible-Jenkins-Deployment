@@ -1,0 +1,31 @@
+---
+- name: Ensure Docker is installed
+  package:
+    name: docker.io
+    state: present
+
+- name: Ensure Docker service is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+- name: Create Docker network if it doesn't exist
+  command: docker network create {{ jenkins_docker_network }}
+  ignore_errors: yes
+
+- name: Build Jenkins Docker image
+  command: docker build -t {{ jenkins_docker_image }}:{{ jenkins_docker_tag }} .
+  args:
+    chdir: "{{ role_path }}/deployment_methods/docker"
+
+- name: Run Jenkins container
+  command: >
+    docker run -d
+    --name {{ jenkins_docker_container_name }}
+    --network {{ jenkins_docker_network }}
+    -p {{ jenkins_http_port }}:8080
+    -p 50000:50000
+    -v jenkins_home:/var/jenkins_home
+    -v /var/run/docker.sock:/var/run/docker.sock
+    {{ jenkins_docker_image }}:{{ jenkins_docker_tag }} 

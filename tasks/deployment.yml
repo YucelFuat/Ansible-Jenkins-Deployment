@@ -1,0 +1,16 @@
+---
+- name: Include Docker deployment tasks
+  include_tasks: "deployment/docker.yml"
+  when: jenkins_deployment_method == "docker"
+
+- name: Include Docker Compose deployment tasks
+  include_tasks: "deployment/docker_compose.yml"
+  when: jenkins_deployment_method == "docker_compose"
+
+- name: Include Kubernetes deployment tasks
+  include_tasks: "deployment/kubernetes.yml"
+  when: jenkins_deployment_method == "kubernetes"
+
+- name: Include Bare Metal deployment tasks
+  include_tasks: "deployment/bare_metal.yml"
+  when: jenkins_deployment_method == "bare_metal" 
