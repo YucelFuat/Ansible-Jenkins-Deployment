@@ -34,6 +34,9 @@ cd Ansible-Jenkins-Deployment
 # For Docker deployment
 ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=docker"
 
+# For Docker Compose deployment
+ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=docker_compose"
+
 # For bare metal deployment (requires sudo)
 ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=bare_metal" -K
 ```
@@ -54,6 +57,12 @@ After successful deployment, Jenkins will be available at:
 http://localhost:8085
 ```
 
+### Docker Compose Deployment
+After successful deployment, Jenkins will be available at:
+```
+http://localhost:8085
+```
+
 ### Bare Metal Deployment
 After successful deployment, Jenkins will be available at:
 ```
@@ -66,6 +75,10 @@ http://localhost:8085
    - For Docker deployment:
      ```bash
      docker exec cloud4next_jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+     ```
+   - For Docker Compose deployment:
+     ```bash
+     docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
      ```
    - For bare metal deployment:
      ```bash
@@ -89,7 +102,42 @@ The role can be configured using the following variables:
 jenkins_deployment_method: "docker"  # Options: docker, docker_compose, kubernetes, bare_metal
 jenkins_http_port: 8085
 jenkins_hostname: localhost
+jenkins_docker_compose_version: "2.24.6"  # Docker Compose version to install
+jenkins_docker_compose_network: "jenkins_network"  # Docker network name for Jenkins
 ```
+
+### Docker Compose Configuration
+The Docker Compose deployment uses the following configuration:
+
+```yaml
+version: '3.8'
+services:
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8085:8080"
+      - "50000:50000"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+    networks:
+      - jenkins_network
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:
+
+networks:
+  jenkins_network:
+    driver: bridge
+```
+
+This configuration:
+- Uses the latest LTS version of Jenkins
+- Exposes ports 8085 (web interface) and 50000 (agent communication)
+- Creates a persistent volume for Jenkins data
+- Sets up a dedicated network for Jenkins
+- Configures automatic container restart
 
 ## Contributing
 
