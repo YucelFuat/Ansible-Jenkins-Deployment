@@ -19,6 +19,7 @@ This Ansible role deploys Jenkins using various methods including Docker, Docker
 - Docker (for Docker deployment)
 - kubectl (for Kubernetes deployment)
 - Python 3.6 or higher
+- Sudo privileges (for bare metal deployment)
 
 ## Installation
 
@@ -30,8 +31,14 @@ cd Ansible-Jenkins-Deployment
 
 2. Run the playbook with your desired deployment method:
 ```bash
+# For Docker deployment
 ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=docker"
+
+# For bare metal deployment (requires sudo)
+ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=bare_metal" -K
 ```
+
+The `-K` flag is required for bare metal deployment as it prompts for the sudo password needed to install Jenkins and its dependencies.
 
 Available deployment methods:
 - `docker`
@@ -47,12 +54,27 @@ After successful deployment, Jenkins will be available at:
 http://localhost:8085
 ```
 
+### Bare Metal Deployment
+After successful deployment, Jenkins will be available at:
+```
+http://localhost:8085
+```
+
 ### Initial Setup
 1. When accessing Jenkins for the first time, you'll need to unlock it using the initial admin password.
-2. To get the initial admin password, run:
-```bash
-docker exec cloud4next_jenkins cat /var/jenkins_home/secrets/initialAdminPassword
-```
+2. To get the initial admin password:
+   - For Docker deployment:
+     ```bash
+     docker exec cloud4next_jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+     ```
+   - For bare metal deployment:
+     ```bash
+     sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+     ```
+     or check the system journal:
+     ```bash
+     sudo journalctl -u jenkins | grep -A 1 "Please use the following password"
+     ```
 3. Copy the displayed password and paste it into the Jenkins unlock page.
 4. Follow the setup wizard to:
    - Install suggested plugins
