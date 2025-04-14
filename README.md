@@ -1,160 +1,82 @@
-# C4N Jenkins Deployment Role
+# Ansible Jenkins Deployment
 
-This Ansible role installs and configures Jenkins CI for various deployment scenarios. Originally based on geerlingguy.jenkins, modified and maintained by C4N.
+This Ansible role deploys Jenkins using various methods including Docker, Docker Compose, Kubernetes, and bare metal installation.
 
-## Deployment Methods
+## Features
 
-This role supports multiple deployment methods:
+- Multiple deployment methods:
+  - Docker
+  - Docker Compose
+  - Kubernetes
+  - Bare Metal
+- Configurable Jenkins settings
+- Plugin management
+- Security configuration
 
-1. **Bare Metal Installation**
-   ```bash
-   ansible-playbook -i inventory.yml playbook.yml -e "jenkins_deployment_method=bare_metal"
-   ```
+## Prerequisites
 
-2. **Docker Installation**
-   ```bash
-   ansible-playbook -i inventory.yml playbook.yml -e "jenkins_deployment_method=docker"
-   ```
+- Ansible 2.9 or higher
+- Docker (for Docker deployment)
+- kubectl (for Kubernetes deployment)
+- Python 3.6 or higher
 
-3. **Docker Compose Installation**
-   ```bash
-   ansible-playbook -i inventory.yml playbook.yml -e "jenkins_deployment_method=docker_compose"
-   ```
+## Installation
 
-4. **Kubernetes Installation**
-   ```bash
-   ansible-playbook -i inventory.yml playbook.yml -e "jenkins_deployment_method=kubernetes"
-   ```
-
-## Testing Locally
-
-To test on your local Ubuntu machine:
-
-1. Install required dependencies:
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y ansible docker.io docker-compose
-   ```
-
-2. Clone this repository:
-   ```bash
-   git clone https://github.com/cloud4next/ansible-role-jenkins.git
-   ```
-
-3. Create a test inventory file:
-   ```bash
-   echo "localhost ansible_connection=local" > inventory
-   ```
-
-4. Create a test playbook:
-   ```yaml
-   ---
-   - hosts: localhost
-     become: true
-     roles:
-       - ansible-role-jenkins
-   ```
-
-5. Run the playbook:
-   ```bash
-   ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=docker"
-   ```
-
-## Role Variables
-
-Available variables are listed below, along with default values (see `defaults/main.yml`):
-
-### Deployment Method Configuration
-```yaml
-jenkins_deployment_method: "bare_metal"  # Options: bare_metal, docker, docker_compose, kubernetes
-company_name: "Cloud4Next"
-environment: "production"  # Options: production, staging, development
+1. Clone this repository:
+```bash
+git clone https://github.com/YucelFuat/Ansible-Jenkins-Deployment.git
+cd Ansible-Jenkins-Deployment
 ```
 
-### Docker Configuration
-```yaml
-jenkins_docker_image: "jenkins/jenkins"
-jenkins_docker_tag: "lts"
-jenkins_docker_network: "jenkins_network"
-jenkins_docker_container_name: "cloud4next_jenkins"
-jenkins_docker_volumes:
-  - "jenkins_home:/var/jenkins_home"
-  - "/var/run/docker.sock:/var/run/docker.sock"
+2. Run the playbook with your desired deployment method:
+```bash
+ansible-playbook -i inventory playbook.yml -e "jenkins_deployment_method=docker"
 ```
 
-### Kubernetes Configuration
-```yaml
-jenkins_k8s_namespace: "jenkins"
-jenkins_k8s_storage_class: "standard"
-jenkins_k8s_pvc_size: "10Gi"
-```
+Available deployment methods:
+- `docker`
+- `docker_compose`
+- `kubernetes`
+- `bare_metal`
 
-### Jenkins Configuration
-```yaml
-jenkins_package_state: present
-jenkins_prefer_lts: false
-jenkins_connection_delay: 5
-jenkins_connection_retries: 60
-jenkins_home: /var/lib/jenkins
-jenkins_hostname: localhost
-jenkins_http_port: 8080
-```
-
-## Dependencies
-
-- For Docker deployments: Docker and Docker Compose
-- For Kubernetes deployments: kubectl and access to a Kubernetes cluster
-- For bare metal deployments: curl and Java 8+
-
-## Example Playbooks
-
-### Bare Metal Deployment
-```yaml
-- hosts: jenkins
-  become: true
-  
-  vars:
-    jenkins_deployment_method: "bare_metal"
-    jenkins_hostname: jenkins.example.com
-    java_packages:
-      - openjdk-8-jdk
-
-  roles:
-    - role: cloud4next.jenkins
-```
+## Accessing Jenkins
 
 ### Docker Deployment
-```yaml
-- hosts: jenkins
-  become: true
-  
-  vars:
-    jenkins_deployment_method: "docker"
-    jenkins_docker_container_name: "customer_jenkins"
-    jenkins_http_port: 8081
-
-  roles:
-    - role: cloud4next.jenkins
+After successful deployment, Jenkins will be available at:
+```
+http://localhost:8085
 ```
 
-### Kubernetes Deployment
-```yaml
-- hosts: kubernetes
-  become: true
-  
-  vars:
-    jenkins_deployment_method: "kubernetes"
-    jenkins_k8s_namespace: "customer-jenkins"
-    jenkins_k8s_storage_class: "customer-storage"
-
-  roles:
-    - role: cloud4next.jenkins
+### Initial Setup
+1. When accessing Jenkins for the first time, you'll need to unlock it using the initial admin password.
+2. To get the initial admin password, run:
+```bash
+docker exec cloud4next_jenkins cat /var/jenkins_home/secrets/initialAdminPassword
 ```
+3. Copy the displayed password and paste it into the Jenkins unlock page.
+4. Follow the setup wizard to:
+   - Install suggested plugins
+   - Create your first admin user
+   - Configure your Jenkins instance
+
+## Configuration
+
+The role can be configured using the following variables:
+
+```yaml
+jenkins_deployment_method: "docker"  # Options: docker, docker_compose, kubernetes, bare_metal
+jenkins_http_port: 8085
+jenkins_hostname: localhost
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a new Pull Request
 
 ## License
 
-MIT (Expat) / BSD
-
-## Author Information
-
-This role was originally created by [Jeff Geerling](https://www.jeffgeerling.com/), and has been modified and maintained by Cloud4Next for enterprise deployment scenarios.
+This project is licensed under the MIT License - see the LICENSE file for details.
