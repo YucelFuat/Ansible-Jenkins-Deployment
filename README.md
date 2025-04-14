@@ -1,6 +1,6 @@
-# Cloud4Next Jenkins Deployment Role
+# C4N Jenkins Deployment Role
 
-This Ansible role installs and configures Jenkins CI for various deployment scenarios. Originally based on geerlingguy.jenkins, modified and maintained by Cloud4Next.
+This Ansible role installs and configures Jenkins CI for various deployment scenarios. Originally based on geerlingguy.jenkins, modified and maintained by C4N.
 
 ## Deployment Methods
 
